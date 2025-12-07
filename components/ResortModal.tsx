@@ -224,7 +224,6 @@ const ResortModal: React.FC<ResortModalProps> = ({ resort, onClose }) => {
              
              {/* Sticker Badge Container */}
              <div className="relative mb-6">
-                
                 {/* Stars */}
                 <div className="flex gap-1 justify-center text-white drop-shadow-md">
                    {[...Array(resort.stars || 5)].map((_, i) => (
@@ -233,7 +232,6 @@ const ResortModal: React.FC<ResortModalProps> = ({ resort, onClose }) => {
                       </svg>
                    ))}
                 </div>
-                
                 {/* Luxury Label */}
                 <div className="text-white text-lg font-serif mt-1 drop-shadow-sm">
                    luxury / <span className="font-sans">لكجري</span>
@@ -483,32 +481,32 @@ const ResortModal: React.FC<ResortModalProps> = ({ resort, onClose }) => {
              {/* Form Header with Progress */}
              <div className="mb-10 text-center bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
                 <h3 className="text-3xl font-bold text-secondary mb-2">إكمال الحجز</h3>
-                <p className="text-gray-500 mb-6">
+                <div className="text-gray-500 mb-8 bg-gray-50 inline-block px-4 py-2 rounded-lg text-sm">
                    {selectedPlan ? (
                      <span>لقد اخترت: <strong className="text-primary">{selectedPlan}</strong></span>
                    ) : (
                      "الرجاء اختيار باقة من الأعلى للبدء"
                    )}
-                </p>
+                </div>
 
                 {/* Stepper */}
                 <div className="flex items-center justify-center max-w-lg mx-auto">
                    <div className="flex flex-col items-center relative z-10">
-                      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-md">1</div>
+                      <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-md ring-4 ring-white">1</div>
                       <span className="text-xs font-bold mt-2 text-primary">اختيار الباقة</span>
                    </div>
-                   <div className="h-1 flex-1 bg-gray-100 mx-2 rounded-full overflow-hidden">
+                   <div className="h-0.5 flex-1 bg-gray-100 mx-2 -mt-4">
                       <div className="h-full bg-primary w-full"></div>
                    </div>
                    <div className="flex flex-col items-center relative z-10">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${selectedPlan ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'}`}>2</div>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-md ring-4 ring-white transition-colors ${selectedPlan ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'}`}>2</div>
                       <span className={`text-xs font-bold mt-2 ${selectedPlan ? 'text-primary' : 'text-gray-400'}`}>التفاصيل</span>
                    </div>
-                   <div className="h-1 flex-1 bg-gray-100 mx-2 rounded-full overflow-hidden">
+                   <div className="h-0.5 flex-1 bg-gray-100 mx-2 -mt-4">
                       <div className={`h-full bg-primary transition-all duration-500 ${isSuccess ? 'w-full' : 'w-0'}`}></div>
                    </div>
                    <div className="flex flex-col items-center relative z-10">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${isSuccess ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'}`}>3</div>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-md ring-4 ring-white transition-colors ${isSuccess ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'}`}>3</div>
                       <span className={`text-xs font-bold mt-2 ${isSuccess ? 'text-primary' : 'text-gray-400'}`}>التأكيد</span>
                    </div>
                 </div>
