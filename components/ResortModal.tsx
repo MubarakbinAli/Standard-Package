@@ -481,12 +481,9 @@ const ResortModal: React.FC<ResortModalProps> = ({ resort, onClose }) => {
           <div id="booking-form" className={`mt-10 pt-10 border-t-2 border-dashed border-gray-200 ${!selectedPlan ? 'opacity-50 pointer-events-none filter blur-sm transition-all duration-500' : 'opacity-100 filter-none'}`}>
              
              {/* Form Header with Progress */}
-             <div className="mb-10 text-center">
-                <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-full mb-4 text-primary">
-                  <Calendar size={32} />
-                </div>
+             <div className="mb-10 text-center bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
                 <h3 className="text-3xl font-bold text-secondary mb-2">إكمال الحجز</h3>
-                <p className="text-gray-500">
+                <p className="text-gray-500 mb-6">
                    {selectedPlan ? (
                      <span>لقد اخترت: <strong className="text-primary">{selectedPlan}</strong></span>
                    ) : (
@@ -495,19 +492,23 @@ const ResortModal: React.FC<ResortModalProps> = ({ resort, onClose }) => {
                 </p>
 
                 {/* Stepper */}
-                <div className="flex items-center justify-center mt-8 max-w-lg mx-auto">
+                <div className="flex items-center justify-center max-w-lg mx-auto">
                    <div className="flex flex-col items-center relative z-10">
-                      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</div>
+                      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-md">1</div>
                       <span className="text-xs font-bold mt-2 text-primary">اختيار الباقة</span>
                    </div>
-                   <div className="h-1 flex-1 bg-primary mx-2 rounded-full"></div>
+                   <div className="h-1 flex-1 bg-gray-100 mx-2 rounded-full overflow-hidden">
+                      <div className="h-full bg-primary w-full"></div>
+                   </div>
                    <div className="flex flex-col items-center relative z-10">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${selectedPlan ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'}`}>2</div>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${selectedPlan ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'}`}>2</div>
                       <span className={`text-xs font-bold mt-2 ${selectedPlan ? 'text-primary' : 'text-gray-400'}`}>التفاصيل</span>
                    </div>
-                   <div className={`h-1 flex-1 mx-2 rounded-full ${selectedPlan ? 'bg-primary' : 'bg-gray-200'}`}></div>
+                   <div className="h-1 flex-1 bg-gray-100 mx-2 rounded-full overflow-hidden">
+                      <div className={`h-full bg-primary transition-all duration-500 ${isSuccess ? 'w-full' : 'w-0'}`}></div>
+                   </div>
                    <div className="flex flex-col items-center relative z-10">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${isSuccess ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'}`}>3</div>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${isSuccess ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'}`}>3</div>
                       <span className={`text-xs font-bold mt-2 ${isSuccess ? 'text-primary' : 'text-gray-400'}`}>التأكيد</span>
                    </div>
                 </div>
