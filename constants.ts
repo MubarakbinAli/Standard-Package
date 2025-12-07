@@ -97,7 +97,7 @@ export const RESORTS_DATA: Resort[] = [
     location: 'كيرلا - أشتامودي',
     description: 'بوابة لمياه كيرلا الهادئة، تجربة فريدة وسط الطبيعة والبحيرات مع خيارات الإقامة في الأكواخ العائمة التقليدية.',
     longDescription: 'يقع فندق The Leela Raviz Ashtamudi على ضفاف بحيرة أشتامودي الخلابة، ويعد جوهرة مخفية تقدم مزيجاً فريداً من الفخامة والطبيعة. يتميز المنتجع بتصميمه التقليدي الذي يعكس تراث كيرالا، ويوفر تجربة إقامة استثنائية سواء في الغرف المطلة على البحيرة أو في الأكواخ العائمة التي تمنحك خصوصية تامة.',
-    imageUrl: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/41/50/33/the-raviz-ashtamudi.jpg?w=1200&h=-1&s=1',
+    imageUrl: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/48405086.jpg?k=3242207164d17367807185077274092497645166292271837568181650360706&o=&hp=1',
     badge: 'Luxury / لكجري',
     stars: 5,
     bookingScore: 8.0,
