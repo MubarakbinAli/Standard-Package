@@ -47,7 +47,6 @@ export interface Resort {
   offerIncludes?: InclusionItem[];
   treatmentIncludes?: InclusionItem[];
   packageCategories: PackageCategory[];
-  resortNumber?: number;
   stars?: number;
   bookingScore?: number;
 }
