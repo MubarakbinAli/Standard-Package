@@ -45,6 +45,7 @@ export interface Resort {
   airport?: AirportInfo;
   features?: ResortFeature[];
   offerIncludes?: InclusionItem[];
+  offerExcludes?: InclusionItem[];
   treatmentIncludes?: InclusionItem[];
   packageCategories: PackageCategory[];
   resortNumber?: number;

@@ -45,6 +45,10 @@ export const RESORTS_DATA: Resort[] = [
       { icon: 'message-circle', title: 'استشارات أولية ويومية ونهائية مع طبيب الأيورفيدا قبل تسجيل الوصول' },
       { icon: 'soup', title: 'وجبات الأيورفيدا الكاملة (إفطار، غداء، عشاء) وفقاً لنظام غذائي أيورفيدي موصى به' }
     ],
+    offerExcludes: [
+      { icon: 'plane-x', title: 'الطيران الدولي' },
+      { icon: 'file-x', title: 'الفيزا للهند' }
+    ],
     treatmentIncludes: [
       { icon: 'wind', title: 'استخدام البخار والساونا كما يوصي بها طبيب الأيورفيدا' },
       { icon: 'leaf', title: 'الأدوية العشبية المخصصة للـ "تري دوشا" والحالات الصحية أثناء فترة العلاج' },
@@ -98,7 +102,7 @@ export const RESORTS_DATA: Resort[] = [
     location: 'كيرلا - أشتامودي',
     description: 'بوابة لمياه كيرلا الهادئة، تجربة فريدة وسط الطبيعة والبحيرات مع خيارات الإقامة في الأكواخ العائمة التقليدية.',
     longDescription: 'يقع فندق The Leela Raviz Ashtamudi على ضفاف بحيرة أشتامودي الخلابة، ويعد جوهرة مخفية تقدم مزيجاً فريداً من الفخامة والطبيعة. يتميز المنتجع بتصميمه التقليدي الذي يعكس تراث كيرالا، ويوفر تجربة إقامة استثنائية سواء في الغرف المطلة على البحيرة أو في الأكواخ العائمة التي تمنحك خصوصية تامة.',
-    imageUrl: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    imageUrl: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/48405086.jpg?k=3242207164d17367807185077274092497645166292271837568181650360706&o=&hp=1',
     badge: 'Luxury / لكجري',
     resortNumber: 2,
     stars: 5,
@@ -123,6 +127,10 @@ export const RESORTS_DATA: Resort[] = [
       { icon: 'flower-2', title: 'علاجات أيورفيدا يومية' },
       { icon: 'message-circle', title: 'استشارات طبية دورية' },
       { icon: 'soup', title: 'وجبات أيورفيدا كاملة' }
+    ],
+    offerExcludes: [
+      { icon: 'plane-x', title: 'الطيران الدولي' },
+      { icon: 'file-x', title: 'الفيزا للهند' }
     ],
     treatmentIncludes: [
       { icon: 'wind', title: 'استخدام المرافق الصحية' },
