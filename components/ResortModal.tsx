@@ -553,24 +553,26 @@ const ResortModal: React.FC<ResortModalProps> = ({ resort, onClose }) => {
                   <p className="text-[#D4A373] font-bold text-lg mb-8">لقد اخترت: {selectedPlan}</p>
                   
                   {/* Stepper centered properly */}
-                  <div className="w-full max-w-md mx-auto relative h-12">
+                  <div className="w-full max-w-md mx-auto relative mb-8" dir="rtl">
                       {/* Background Line */}
-                      <div className="absolute top-4 left-0 right-0 h-1 bg-gray-100 -z-0 rounded-full"></div>
-                      <div className="absolute top-4 left-0 right-1/2 h-1 bg-[#D4A373] -z-0 rounded-full"></div>
+                      <div className="absolute top-4 left-10 right-10 h-1 bg-gray-200 -z-0 rounded-full"></div>
+                      
+                      {/* Active Line: Right side (Step 1 to 2) */}
+                      <div className="absolute top-4 right-10 w-[calc(50%-2.5rem)] h-1 bg-[#D4A373] -z-0 rounded-full"></div>
                       
                       {/* Steps */}
-                      <div className="relative w-full flex justify-between z-10">
-                         <div className="flex flex-col items-center gap-2">
+                      <div className="relative w-full flex justify-between z-10 text-center">
+                         <div className="flex flex-col items-center gap-2 w-20">
                             <div className="w-8 h-8 rounded-full bg-[#D4A373] text-white flex items-center justify-center font-bold text-sm ring-4 ring-white shadow-sm">1</div>
-                            <span className="text-[10px] font-bold text-[#D4A373]">اختيار الباقة</span>
+                            <span className="text-sm font-bold text-[#D4A373] whitespace-nowrap">اختيار الباقة</span>
                          </div>
-                         <div className="flex flex-col items-center gap-2">
+                         <div className="flex flex-col items-center gap-2 w-20">
                             <div className="w-8 h-8 rounded-full bg-[#D4A373] text-white flex items-center justify-center font-bold text-sm ring-4 ring-white shadow-sm">2</div>
-                            <span className="text-[10px] font-bold text-[#D4A373]">التفاصيل</span>
+                            <span className="text-sm font-bold text-[#D4A373] whitespace-nowrap">التفاصيل</span>
                          </div>
-                         <div className="flex flex-col items-center gap-2">
+                         <div className="flex flex-col items-center gap-2 w-20">
                             <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center font-bold text-sm ring-4 ring-white">3</div>
-                            <span className="text-[10px] font-bold text-gray-400">التأكيد</span>
+                            <span className="text-sm font-bold text-gray-400 whitespace-nowrap">التأكيد</span>
                          </div>
                       </div>
                    </div>

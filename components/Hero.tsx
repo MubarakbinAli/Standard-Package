@@ -3,7 +3,11 @@ import React from 'react';
 import { ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  backgroundImage: string;
+}
+
+const Hero: React.FC<HeroProps> = ({ backgroundImage }) => {
   const scrollToContent = () => {
     const element = document.getElementById('intro');
     if (element) {
@@ -13,14 +17,14 @@ const Hero: React.FC = () => {
 
   return (
     <header className="relative h-[90vh] flex flex-col items-center justify-center text-center text-white rounded-b-[50px] overflow-hidden shadow-xl">
-      {/* Background Image with Overlay */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        style={{ 
-          // Updated image: Serene Kerala Nature (Backwaters/Greenery), no people
-          backgroundImage: "url('https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=2070&auto=format&fit=crop')",
-        }}
-      >
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <div 
+          className="w-full h-full bg-cover bg-center transition-all duration-1000"
+          style={{ 
+            backgroundImage: `url("${backgroundImage}")` 
+          }}
+        />
         <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]"></div>
       </div>
 

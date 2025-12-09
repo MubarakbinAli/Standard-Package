@@ -1,10 +1,15 @@
+
 import React from 'react';
-import { Phone } from 'lucide-react';
+import { Phone, Lock } from 'lucide-react';
 import { CONTACT_PHONE_DISPLAY } from '../constants';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  onAdminClick?: () => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
   return (
-    <footer className="bg-darkbrown text-white py-12 mt-20">
+    <footer className="bg-darkbrown text-white py-12 mt-20 relative">
       <div className="max-w-6xl mx-auto px-6 text-center">
         <h3 className="text-2xl font-bold mb-6 font-sans">عروض منتجعات الأيورفيدا</h3>
         <p className="opacity-70 mb-8">
@@ -19,8 +24,18 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-white/10 text-sm opacity-50">
-          &copy; 2025 جميع الحقوق محفوظة
+        <div className="mt-12 pt-8 border-t border-white/10 text-sm opacity-50 flex justify-center items-center gap-2">
+          <span>&copy; 2025 جميع الحقوق محفوظة</span>
+          {onAdminClick && (
+            <button 
+              onClick={onAdminClick} 
+              className="opacity-40 hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-white/10"
+              aria-label="Admin Login"
+              title="الدخول للإدارة"
+            >
+              <Lock size={14} />
+            </button>
+          )}
         </div>
       </div>
     </footer>

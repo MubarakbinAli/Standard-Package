@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -26,10 +27,10 @@ const ResortCard: React.FC<ResortCardProps> = ({ resort, onClick }) => {
           </span>
         )}
         <div 
-          className="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110"
           style={{ backgroundImage: `url(${resort.imageUrl})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60 group-hover:opacity-50 transition-opacity duration-700"></div>
       </div>
       
       <div className="p-6">

@@ -1,24 +1,88 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Hero from './components/Hero';
 import Intro from './components/Intro';
 import AyurvedaPage from './components/AyurvedaPage';
 import ResortCard from './components/ResortCard';
 import ResortModal from './components/ResortModal';
+import AdminDashboard from './components/AdminDashboard';
 import Footer from './components/Footer';
 import { RESORTS_DATA } from './constants';
 import { Resort } from './types';
+import { supabase, isSupabaseConfigured } from './supabaseClient';
 
 function App() {
   const [selectedResort, setSelectedResort] = useState<Resort | null>(null);
-  const [view, setView] = useState<'home' | 'ayurveda'>('home');
+  const [view, setView] = useState<'home' | 'ayurveda' | 'admin'>('home');
+  
+  // Dynamic Content State
+  const [heroImage, setHeroImage] = useState("https://cf.bstatic.com/xdata/images/hotel/max1024x768/402854972.jpg?k=f1b953d922904c06282924151212879685a36329067b439c0879e273a7c66914&o=&hp=1");
+  const [dynamicResorts, setDynamicResorts] = useState<Resort[]>(RESORTS_DATA);
 
-  // If in Ayurveda View, show the full page
+  // Check URL for admin mode
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'admin' || window.location.hash === '#admin') {
+      setView('admin');
+    }
+  }, []);
+
+  // Fetch dynamic content from Supabase
+  const fetchContent = async () => {
+    if (!isSupabaseConfigured) return;
+
+    try {
+      const { data, error } = await supabase.from('site_content').select('*');
+      
+      if (data && !error) {
+        // Map content to state
+        const contentMap = data.reduce((acc: any, item: any) => {
+          acc[item.key] = item.value;
+          return acc;
+        }, {});
+
+        // Update Hero
+        if (contentMap['hero_image']) {
+          setHeroImage(contentMap['hero_image']);
+        }
+
+        // Update Resorts
+        const updatedResorts = RESORTS_DATA.map(resort => {
+          const key = `resort_${resort.id}_image`;
+          if (contentMap[key]) {
+            return { ...resort, imageUrl: contentMap[key] };
+          }
+          return resort;
+        });
+        setDynamicResorts(updatedResorts);
+      }
+    } catch (err) {
+      console.error("Error fetching content:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchContent();
+  }, []);
+
+  // Admin View
+  if (view === 'admin') {
+    return (
+      <AdminDashboard 
+        onBack={() => setView('home')} 
+        currentHeroImage={heroImage}
+        resorts={dynamicResorts}
+        onUpdateContent={fetchContent}
+      />
+    );
+  }
+
+  // Ayurveda View
   if (view === 'ayurveda') {
     return (
       <>
         <AyurvedaPage onBack={() => setView('home')} />
-        <Footer />
+        <Footer onAdminClick={() => setView('admin')} />
       </>
     );
   }
@@ -26,7 +90,7 @@ function App() {
   // Home View
   return (
     <div className="min-h-screen flex flex-col font-sans">
-      <Hero />
+      <Hero backgroundImage={heroImage} />
       
       <main className="flex-grow">
         {/* Pass the navigation handler to Intro */}
@@ -39,7 +103,7 @@ function App() {
               <p className="text-gray-500">اختر وجهتك المثالية للرفاهية</p>
            </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 md:gap-12">
-            {RESORTS_DATA.map((resort) => (
+            {dynamicResorts.map((resort) => (
               <ResortCard 
                 key={resort.id} 
                 resort={resort} 
@@ -50,7 +114,7 @@ function App() {
         </section>
       </main>
 
-      <Footer />
+      <Footer onAdminClick={() => setView('admin')} />
 
       <ResortModal 
         resort={selectedResort} 
