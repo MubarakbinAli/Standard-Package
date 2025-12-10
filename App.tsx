@@ -89,7 +89,7 @@ function App() {
       <AdminDashboard 
         onBack={() => setView('home')} 
         currentHeroImages={heroImages} 
-        currentResorts={dynamicResorts} // Pass full resorts data (hidden and visible)
+        currentResorts={dynamicResorts} // Pass full resorts data (hidden included)
         onUpdateContent={fetchContent}
       />
     );
@@ -105,8 +105,8 @@ function App() {
     );
   }
 
-  // Filter visible resorts for the public view
-  // Treat undefined isVisible as true for backward compatibility
+  // Filter visible resorts for the public home page
+  // If isVisible is undefined, we assume it's true (backward compatibility)
   const visibleResorts = dynamicResorts.filter(r => r.isVisible !== false);
 
   // Home View

@@ -36,13 +36,13 @@ export interface PackageCategory {
 
 export interface Resort {
   id: string;
-  isVisible?: boolean; // New field for visibility control
   name: string;
   location: string;
   description: string;
   longDescription?: string;
   imageUrl: string;
   badge?: string;
+  isVisible?: boolean;
   airport?: AirportInfo;
   features?: ResortFeature[];
   offerIncludes?: InclusionItem[];

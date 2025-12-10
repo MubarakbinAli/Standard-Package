@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
-import { LogOut, Save, Image as ImageIcon, Loader2, Upload, Link as LinkIcon, X, Copy, Check, Database, Plus, Trash2, Edit, ArrowLeft, Package, DollarSign, Eye, EyeOff, Sparkles, LayoutList, List } from 'lucide-react';
-import { Resort } from '../lib/types';
+import { Lock, LogOut, Save, Image as ImageIcon, Loader2, AlertCircle, Upload, Link as LinkIcon, X, Copy, Check, Database, Plus, Trash2, Edit, List, ArrowLeft, Package, DollarSign, Eye, EyeOff, Sparkles, Wand2 } from 'lucide-react';
+import { Resort, ResortFeature } from '../lib/types';
 
 // SQL command string to fix permission errors
 const FIX_SQL_COMMANDS = `-- Copy and run this in Supabase SQL Editor:
@@ -74,105 +74,49 @@ const ImageInput: React.FC<ImageInputProps> = ({ label, value, onChange, preview
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-end">
         <label className="text-sm font-bold text-gray-700">{label}</label>
         {showRemove && onRemove && (
-          <button onClick={onRemove} className="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1 bg-red-50 px-2 py-1 rounded-md transition-colors">
+          <button onClick={onRemove} className="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1 bg-red-50 px-2 py-1 rounded-lg">
             <Trash2 size={12} /> حذف
           </button>
         )}
       </div>
       
-      <div className="group relative rounded-2xl border-2 border-dashed border-gray-300 hover:border-primary/50 transition-all bg-gray-50 p-4">
-        {value ? (
-           <div className={`relative w-full ${previewHeightClass} rounded-xl overflow-hidden shadow-sm`}>
+      <div className="border-2 border-dashed border-gray-200 rounded-2xl p-4 transition-colors hover:border-primary/50 bg-gray-50/50">
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          {/* Preview Area */}
+          <div className={`w-full md:w-40 ${previewHeightClass} rounded-xl overflow-hidden bg-white border border-gray-200 relative group shrink-0 shadow-sm flex items-center justify-center`}>
+            {value ? (
               <img src={value} alt="Preview" className="w-full h-full object-cover" />
-              <button 
-                onClick={() => onChange('')} 
-                className="absolute top-2 right-2 bg-black/50 hover:bg-red-500 text-white p-1.5 rounded-full backdrop-blur-sm transition-colors"
-              >
-                <X size={14} />
-              </button>
-           </div>
-        ) : (
-           <div 
-             className={`w-full ${previewHeightClass} flex flex-col items-center justify-center text-gray-400 gap-3 cursor-pointer hover:bg-gray-100 transition-colors rounded-xl`}
-             onClick={() => fileInputRef.current?.click()}
-           >
-              <div className="p-4 bg-white rounded-full shadow-sm">
-                {isUploading ? <Loader2 className="animate-spin text-primary" size={24}/> : <Upload className="text-primary" size={24} />}
+            ) : (
+              <div className="text-gray-300 flex flex-col items-center">
+                <ImageIcon size={32} />
               </div>
-              <span className="text-sm font-bold">{isUploading ? 'جاري الرفع...' : 'اضغط لرفع صورة'}</span>
-           </div>
-        )}
-        
-        {/* Hidden Input & URL Fallback */}
-        <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
-        
-        <div className="mt-4 flex items-center gap-2">
-           <div className="relative flex-1">
-              <LinkIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-              <input 
-                 type="text" 
-                 value={value} 
-                 onChange={(e) => onChange(e.target.value)} 
-                 className="w-full pl-3 pr-9 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none dir-ltr font-mono text-xs bg-white" 
-                 placeholder="أو ضع رابط الصورة هنا..." 
-              />
-           </div>
-           <button 
-             type="button" 
-             onClick={() => fileInputRef.current?.click()}
-             className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-50 whitespace-nowrap"
-           >
-             تصفح الجهاز
-           </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+            )}
+            {isUploading && <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10"><Loader2 className="animate-spin text-primary" size={24} /></div>}
+          </div>
 
-// --- AI Text Parser Modal ---
-interface AiParserModalProps {
-  onClose: () => void;
-  onSave: (features: {icon: string, title: string}[]) => void;
-}
-const AiParserModal: React.FC<AiParserModalProps> = ({ onClose, onSave }) => {
-  const [text, setText] = useState('');
-  
-  const handleParse = () => {
-    if(!text.trim()) return;
-    // Simple logic: Split by new lines, remove bullets
-    const lines = text.split('\n');
-    const features = lines
-      .map(line => line.replace(/^[-*•]\s*/, '').trim())
-      .filter(line => line.length > 0)
-      .map(line => ({ icon: 'sparkles', title: line })); // Default icon
-    
-    onSave(features);
-    onClose();
-  };
+          {/* Controls */}
+          <div className="flex-1 w-full space-y-3">
+             <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
+             
+             <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="w-full py-3 bg-white border border-gray-200 rounded-xl text-gray-600 font-bold hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2 shadow-sm">
+               {isUploading ? <Loader2 className="animate-spin" size={18}/> : <Upload size={18} />} 
+               {isUploading ? 'جاري الرفع...' : 'اختر صورة من جهازك'}
+             </button>
+             
+             <div className="flex items-center gap-2">
+                <div className="h-px bg-gray-200 flex-1"></div>
+                <span className="text-xs text-gray-400 font-medium">أو عبر رابط</span>
+                <div className="h-px bg-gray-200 flex-1"></div>
+             </div>
 
-  return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
-        <div className="flex justify-between items-center mb-4">
-           <h3 className="text-lg font-bold flex items-center gap-2 text-primary">
-             <Sparkles size={20}/> مساعد الذكاء الاصطناعي
-           </h3>
-           <button onClick={onClose}><X size={20} className="text-gray-400 hover:text-red-500"/></button>
-        </div>
-        <p className="text-sm text-gray-500 mb-3">الصق قائمة المميزات هنا (كل ميزة في سطر)، وسيقوم النظام بتنسيقها تلقائياً:</p>
-        <textarea 
-          className="w-full h-48 p-4 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary outline-none text-sm leading-relaxed"
-          placeholder={"- إطلالة بحرية خلابة\n- واي فاي مجاني\n- مسبح خاص"}
-          value={text}
-          onChange={e => setText(e.target.value)}
-        />
-        <div className="flex justify-end gap-3 mt-4">
-          <button onClick={onClose} className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-lg">إلغاء</button>
-          <button onClick={handleParse} className="px-6 py-2 text-sm font-bold bg-secondary text-white rounded-lg hover:bg-primary transition-colors">معالجة وإضافة</button>
+             <div className="relative">
+                <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className="w-full pl-3 pr-10 py-2.5 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none dir-ltr font-mono text-xs bg-white text-gray-600" placeholder="https://..." />
+                <LinkIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+             </div>
+          </div>
         </div>
       </div>
     </div>
@@ -189,27 +133,10 @@ interface ResortEditorProps {
 
 const ResortEditor: React.FC<ResortEditorProps> = ({ resort, onSave, onCancel, onShowHelp }) => {
   const [data, setData] = useState<Resort>(resort);
-  const [currentTab, setCurrentTab] = useState<'info' | 'features' | 'packages'>('info');
-  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiText, setAiText] = useState('');
 
   const handleChange = (field: keyof Resort, value: any) => {
     setData(prev => ({ ...prev, [field]: value }));
-  };
-
-  // --- Feature Logic ---
-  const removeFeature = (idx: number) => {
-    const newFeatures = [...(data.features || [])];
-    newFeatures.splice(idx, 1);
-    handleChange('features', newFeatures);
-  };
-  
-  const addAiFeatures = (newFeatures: {icon: string, title: string}[]) => {
-    handleChange('features', [...(data.features || []), ...newFeatures]);
-  };
-
-  const addManualFeature = () => {
-    const title = prompt("اكتب الميزة:");
-    if(title) handleChange('features', [...(data.features || []), {icon: 'sparkles', title}]);
   };
 
   // --- Package Logic ---
@@ -221,7 +148,10 @@ const ResortEditor: React.FC<ResortEditorProps> = ({ resort, onSave, onCancel, o
 
   const handlePriceChange = (catIndex: number, tierIndex: number, field: 'priceSingle' | 'priceDouble', value: string) => {
     const newCats = [...data.packageCategories];
-    newCats[catIndex].priceTiers[tierIndex][field] = value;
+    // Strip old currency symbols if user pasted them
+    const cleanValue = value.replace('ر.س', '').replace('SAR', '').trim();
+    // Add currency symbol format visually (stored as string for flexibility, but we will enforce symbol in UI)
+    newCats[catIndex].priceTiers[tierIndex][field] = cleanValue;
     setData(prev => ({ ...prev, packageCategories: newCats }));
   };
 
@@ -229,7 +159,7 @@ const ResortEditor: React.FC<ResortEditorProps> = ({ resort, onSave, onCancel, o
     const newCats = [...data.packageCategories];
     const name = prompt("اسم البرنامج (مثلاً: تخفيف الوزن):");
     if (name) {
-      newCats[catIndex].items.push({ name, durations: ['7 ليالي', '14 ليلة'] }); 
+      newCats[catIndex].items.push({ name, durations: ['7 ليالي', '14 ليلة'] });
       setData(prev => ({ ...prev, packageCategories: newCats }));
     }
   };
@@ -239,246 +169,237 @@ const ResortEditor: React.FC<ResortEditorProps> = ({ resort, onSave, onCancel, o
     newCats[catIndex].items.splice(itemIndex, 1);
     setData(prev => ({ ...prev, packageCategories: newCats }));
   };
-  
-  const addCategory = () => {
-     const newCat = {
-        title: 'باقات جديدة',
-        items: [],
-        priceTiers: [
-             { durationLabel: '7 ليالٍ', priceSingle: '', priceDouble: '' },
-             { durationLabel: '14 ليلة', priceSingle: '', priceDouble: '' }
-        ]
-     };
-     setData(prev => ({...prev, packageCategories: [...prev.packageCategories, newCat]}));
+
+  // --- Features Logic ---
+  const handleSmartFeaturesParse = () => {
+    if (!aiText.trim()) return;
+    
+    // Keyword to icon mapper
+    const keywordIcons: {[key: string]: string} = {
+       'wifi': 'wifi', 'نت': 'wifi', 'انترنت': 'wifi',
+       'مسبح': 'waves', 'pool': 'waves', 'سباحة': 'waves',
+       'طعام': 'utensils', 'food': 'utensils', 'مطعم': 'utensils',
+       'يوغا': 'activity', 'yoga': 'activity',
+       'طبيب': 'stethoscope', 'doctor': 'stethoscope',
+       'طبيعة': 'leaf', 'nature': 'leaf', 'حديقة': 'flower-2',
+       'بحر': 'sunset', 'ocean': 'sunset', 'شاطئ': 'sunset',
+       'مطار': 'plane', 'airport': 'plane',
+       'نقل': 'plane', 'توصيل': 'plane',
+       'غرفة': 'bed', 'room': 'bed', 'إقامة': 'bed'
+    };
+
+    const lines = aiText.split(/\n/);
+    const newFeatures: ResortFeature[] = lines.filter(line => line.trim().length > 0).map(line => {
+       const lowerLine = line.toLowerCase();
+       let icon = 'sparkles'; // Default
+       
+       for (const [key, val] of Object.entries(keywordIcons)) {
+          if (lowerLine.includes(key)) {
+             icon = val;
+             break;
+          }
+       }
+       return { title: line.trim(), icon };
+    });
+
+    setData(prev => ({
+       ...prev,
+       features: [...(prev.features || []), ...newFeatures]
+    }));
+    setAiText('');
   };
 
-  const removeCategory = (idx: number) => {
-     if(confirm('هل أنت متأكد من حذف هذه المجموعة بالكامل؟')) {
-        const newCats = [...data.packageCategories];
-        newCats.splice(idx, 1);
-        setData(prev => ({...prev, packageCategories: newCats}));
-     }
+  const removeFeature = (index: number) => {
+     const newFeatures = [...(data.features || [])];
+     newFeatures.splice(index, 1);
+     setData(prev => ({ ...prev, features: newFeatures }));
   };
 
   return (
     <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-      {/* Editor Header */}
-      <div className="bg-white border-b border-gray-100 p-6 flex justify-between items-center sticky top-0 z-30">
+      {/* Header */}
+      <div className="bg-secondary p-6 text-white flex justify-between items-center sticky top-0 z-10">
         <div>
-          <h3 className="text-xl font-bold text-secondary flex items-center gap-2">
-            {data.id ? <Edit size={20}/> : <Plus size={20}/>} 
-            {data.name || 'منتجع جديد'}
-          </h3>
-          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${data.isVisible !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-             {data.isVisible !== false ? 'منشور (ظاهر في الموقع)' : 'مسودة (مخفي)'}
-          </span>
+           <h3 className="text-xl font-bold">{data.name || 'منتجع جديد'}</h3>
+           <p className="text-white/60 text-xs mt-1">تعديل البيانات، المميزات، والأسعار</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={onCancel} className="px-4 py-2 rounded-lg text-gray-500 font-bold hover:bg-gray-50 text-sm">إلغاء</button>
-          <button onClick={() => onSave(data)} className="px-6 py-2 rounded-lg bg-secondary text-white font-bold hover:bg-primary transition-colors flex items-center gap-2 text-sm shadow-lg shadow-secondary/20">
-            <Check size={16} /> حفظ التعديلات
-          </button>
+        <div className="flex items-center gap-3">
+           {/* Visibility Toggle */}
+           <button 
+             onClick={() => handleChange('isVisible', !data.isVisible)}
+             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-xs transition-all ${data.isVisible !== false ? 'bg-green-500 text-white' : 'bg-gray-600 text-gray-300'}`}
+           >
+              {data.isVisible !== false ? <><Eye size={14}/> منشور بالموقع</> : <><EyeOff size={14}/> مخفي</>}
+           </button>
+           <button onClick={onCancel} className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm font-bold">إلغاء</button>
+           <button onClick={() => onSave(data)} className="bg-primary hover:bg-white hover:text-primary text-white px-6 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors">
+              <Check size={16}/> حفظ التغييرات
+           </button>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row min-h-[600px]">
-        {/* Sidebar Navigation */}
-        <div className="w-full md:w-64 bg-gray-50 border-l border-gray-100 p-4 space-y-2">
-           <button onClick={() => setCurrentTab('info')} className={`w-full text-right px-4 py-3 rounded-xl font-bold text-sm flex items-center gap-3 transition-colors ${currentTab === 'info' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:bg-gray-100'}`}>
-              <LayoutList size={18}/> المعلومات الأساسية
-           </button>
-           <button onClick={() => setCurrentTab('features')} className={`w-full text-right px-4 py-3 rounded-xl font-bold text-sm flex items-center gap-3 transition-colors ${currentTab === 'features' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:bg-gray-100'}`}>
-              <Sparkles size={18}/> المميزات والمواصفات
-           </button>
-           <button onClick={() => setCurrentTab('packages')} className={`w-full text-right px-4 py-3 rounded-xl font-bold text-sm flex items-center gap-3 transition-colors ${currentTab === 'packages' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:bg-gray-100'}`}>
-              <Package size={18}/> الباقات والأسعار
-           </button>
+      <div className="p-8 space-y-10">
+        {/* Section 1: Basic Info */}
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="space-y-5">
+            <h4 className="font-bold text-gray-400 text-xs uppercase tracking-wider mb-2">البيانات الأساسية</h4>
+            <div>
+               <label className="block text-sm font-bold text-gray-700 mb-1">اسم المنتجع</label>
+               <input type="text" value={data.name} onChange={e => handleChange('name', e.target.value)} className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none bg-gray-50 focus:bg-white transition-colors" />
+            </div>
+            <div>
+               <label className="block text-sm font-bold text-gray-700 mb-1">الموقع (المدينة)</label>
+               <input type="text" value={data.location} onChange={e => handleChange('location', e.target.value)} className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none bg-gray-50 focus:bg-white transition-colors" />
+            </div>
+            <div>
+               <label className="block text-sm font-bold text-gray-700 mb-1">الوصف المختصر (للبطاقة)</label>
+               <textarea value={data.description} onChange={e => handleChange('description', e.target.value)} className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none h-24 bg-gray-50 focus:bg-white transition-colors resize-none" />
+            </div>
+          </div>
+          <div>
+            <h4 className="font-bold text-gray-400 text-xs uppercase tracking-wider mb-4">الوسائط</h4>
+            <ImageInput label="صورة الغلاف الرئيسية" value={data.imageUrl} onChange={url => handleChange('imageUrl', url)} onShowHelp={onShowHelp} />
+          </div>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 p-6 md:p-8 bg-white overflow-y-auto max-h-[80vh]">
-           
-           {/* TAB 1: BASIC INFO */}
-           {currentTab === 'info' && (
-             <div className="space-y-6 max-w-2xl">
-                <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
-                   <label className="font-bold text-secondary">حالة الظهور في الموقع</label>
-                   <button 
-                     onClick={() => handleChange('isVisible', !(data.isVisible !== false))}
-                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-colors ${data.isVisible !== false ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}
-                   >
-                      {data.isVisible !== false ? <><Eye size={18}/> ظاهر للزوار</> : <><EyeOff size={18}/> مخفي (مسودة)</>}
-                   </button>
-                </div>
+        <hr className="border-gray-100" />
 
-                <div className="space-y-4">
-                  <div>
-                     <label className="block text-sm font-bold text-gray-700 mb-1">اسم المنتجع</label>
-                     <input type="text" value={data.name} onChange={e => handleChange('name', e.target.value)} className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none bg-gray-50 focus:bg-white transition-colors" />
-                  </div>
-                  <div>
-                     <label className="block text-sm font-bold text-gray-700 mb-1">الموقع (المدينة - المنطقة)</label>
-                     <input type="text" value={data.location} onChange={e => handleChange('location', e.target.value)} className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none bg-gray-50 focus:bg-white transition-colors" />
-                  </div>
-                  <div>
-                     <label className="block text-sm font-bold text-gray-700 mb-1">الوصف المختصر (يظهر في الكرت)</label>
-                     <textarea value={data.description} onChange={e => handleChange('description', e.target.value)} className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none bg-gray-50 focus:bg-white transition-colors h-24" />
-                  </div>
-                  <div>
-                     <label className="block text-sm font-bold text-gray-700 mb-1">الوصف الكامل (داخل الصفحة)</label>
-                     <textarea value={data.longDescription || ''} onChange={e => handleChange('longDescription', e.target.value)} className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none bg-gray-50 focus:bg-white transition-colors h-32" />
-                  </div>
-                </div>
-                
-                <div className="pt-4 border-t">
-                  <ImageInput label="صورة الغلاف الرئيسية" value={data.imageUrl} onChange={url => handleChange('imageUrl', url)} onShowHelp={onShowHelp} />
-                </div>
-             </div>
-           )}
+        {/* Section 2: Features & Specs (With AI) */}
+        <div>
+           <div className="flex items-center gap-2 mb-6">
+              <Sparkles className="text-primary" size={20}/>
+              <h4 className="text-lg font-bold text-secondary">المميزات والمواصفات</h4>
+           </div>
 
-           {/* TAB 2: FEATURES */}
-           {currentTab === 'features' && (
-             <div>
-                <div className="flex justify-between items-center mb-6">
-                   <h4 className="font-bold text-lg text-secondary">مميزات المنتجع</h4>
-                   <div className="flex gap-2">
-                      <button onClick={() => setShowAiModal(true)} className="flex items-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-bold hover:bg-indigo-100 transition-colors">
-                         <Sparkles size={16}/> إضافة ذكية (AI)
-                      </button>
-                      <button onClick={addManualFeature} className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors">
-                         <Plus size={16}/> إضافة يدوية
-                      </button>
+           <div className="grid md:grid-cols-2 gap-8">
+              {/* Feature List */}
+              <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
+                 <div className="flex justify-between items-center mb-4">
+                    <span className="text-sm font-bold text-gray-500">المميزات الحالية ({data.features?.length || 0})</span>
+                 </div>
+                 <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                    {data.features?.map((feat, idx) => (
+                       <div key={idx} className="bg-white p-3 rounded-xl border border-gray-200 flex justify-between items-center shadow-sm">
+                          <div className="flex items-center gap-3">
+                             <div className="text-primary bg-primary/10 p-1.5 rounded-lg"><Sparkles size={12}/></div>
+                             <span className="text-sm font-medium text-gray-700">{feat.title}</span>
+                          </div>
+                          <button onClick={() => removeFeature(idx)} className="text-red-400 hover:text-red-600"><Trash2 size={14}/></button>
+                       </div>
+                    ))}
+                    {(!data.features || data.features.length === 0) && <p className="text-center text-gray-400 text-xs py-4">لا توجد مميزات مضافة بعد</p>}
+                 </div>
+              </div>
+
+              {/* AI Parser */}
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-5 border border-indigo-100">
+                 <div className="flex items-center gap-2 mb-2">
+                    <Wand2 className="text-indigo-600" size={18} />
+                    <span className="text-sm font-bold text-indigo-900">مساعد الذكاء الاصطناعي</span>
+                 </div>
+                 <p className="text-xs text-indigo-700/70 mb-3">الصق قائمة المميزات هنا (كل ميزة في سطر)، وسأقوم بتنسيقها واختيار الأيقونات تلقائياً.</p>
+                 <textarea 
+                   value={aiText}
+                   onChange={e => setAiText(e.target.value)}
+                   className="w-full h-32 rounded-xl border border-indigo-200 focus:border-indigo-400 outline-none p-3 text-sm bg-white/50 mb-3"
+                   placeholder={`واي فاي مجاني\nمسبح خارجي\nمطعم فاخر...`}
+                 />
+                 <button onClick={handleSmartFeaturesParse} disabled={!aiText.trim()} className="w-full py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition-colors disabled:opacity-50">
+                    إضافة المميزات ذكياً
+                 </button>
+              </div>
+           </div>
+        </div>
+
+        <hr className="border-gray-100" />
+
+        {/* Section 3: Packages & Prices */}
+        <div>
+          <div className="flex items-center gap-2 mb-6">
+              <DollarSign className="text-primary" size={20}/>
+              <h4 className="text-lg font-bold text-secondary">إدارة الباقات والأسعار</h4>
+           </div>
+          
+          <div className="space-y-8">
+             {data.packageCategories.map((cat, catIdx) => (
+               <div key={catIdx} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                 <div className="bg-gray-50 p-4 border-b border-gray-100 flex justify-between items-center">
+                   <div className="flex items-center gap-2 w-1/2">
+                      <span className="text-xs font-bold text-gray-400">اسم الفئة (مثلاً: باقات العافية):</span>
+                      <input 
+                        type="text" 
+                        value={cat.title} 
+                        onChange={e => handleCategoryChange(catIdx, 'title', e.target.value)}
+                        className="font-bold text-secondary bg-transparent border-b border-dashed border-gray-300 focus:border-primary outline-none flex-1"
+                      />
                    </div>
-                </div>
-                
-                {(!data.features || data.features.length === 0) && (
-                   <div className="text-center py-12 bg-gray-50 rounded-2xl border border-dashed border-gray-300 text-gray-400">
-                      <Sparkles size={32} className="mx-auto mb-2 opacity-50"/>
-                      <p>لا توجد مميزات مضافة بعد. استخدم "الإضافة الذكية" للصق قائمة جاهزة.</p>
-                   </div>
-                )}
+                 </div>
 
-                <div className="grid md:grid-cols-2 gap-3">
-                   {data.features?.map((feat, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl shadow-sm group">
-                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-cream flex items-center justify-center text-primary">
-                               <Sparkles size={14}/>
-                            </div>
-                            <span className="font-bold text-sm text-gray-700">{feat.title}</span>
-                         </div>
-                         <button onClick={() => removeFeature(idx)} className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                            <X size={16}/>
-                         </button>
-                      </div>
-                   ))}
-                </div>
-                
-                {showAiModal && <AiParserModal onClose={() => setShowAiModal(false)} onSave={addAiFeatures} />}
-             </div>
-           )}
-
-           {/* TAB 3: PACKAGES */}
-           {currentTab === 'packages' && (
-             <div className="space-y-8">
-                <div className="flex justify-between items-end">
-                   <div>
-                      <h4 className="font-bold text-lg text-secondary">إدارة الباقات والأسعار</h4>
-                      <p className="text-xs text-gray-500">قم بإنشاء مجموعات (مثل: باقات العافية) وأضف البرامج تحتها</p>
-                   </div>
-                   <button onClick={addCategory} className="px-4 py-2 bg-secondary text-white rounded-lg text-sm font-bold hover:bg-primary shadow-lg shadow-secondary/20">
-                      <Plus size={16} className="inline ml-1"/> مجموعة جديدة
-                   </button>
-                </div>
-
-                {data.packageCategories.map((cat, catIdx) => (
-                  <div key={catIdx} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                    {/* Category Header */}
-                    <div className="bg-gray-50 p-4 border-b border-gray-200 flex justify-between items-center">
-                       <input 
-                         type="text" 
-                         value={cat.title} 
-                         onChange={e => handleCategoryChange(catIdx, 'title', e.target.value)}
-                         className="font-bold text-primary bg-transparent outline-none w-1/2 placeholder-gray-400"
-                         placeholder="اسم المجموعة (مثلاً: باقات نمط الحياة)"
-                       />
-                       <button onClick={() => removeCategory(catIdx)} className="text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50" title="حذف المجموعة">
-                          <Trash2 size={16}/>
-                       </button>
+                 <div className="p-6 grid lg:grid-cols-2 gap-8">
+                    {/* Left: Programs List */}
+                    <div>
+                       <label className="text-xs font-bold text-gray-400 block mb-3 uppercase tracking-wider">البرامج المتاحة</label>
+                       <div className="space-y-2">
+                          {cat.items.map((item, itemIdx) => (
+                             <div key={itemIdx} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <span className="font-bold text-gray-700 text-sm">{item.name}</span>
+                                <button onClick={() => removePackageItem(catIdx, itemIdx)} className="text-gray-400 hover:text-red-500"><X size={14}/></button>
+                             </div>
+                          ))}
+                          <button onClick={() => addPackageItem(catIdx)} className="w-full py-2 border-2 border-dashed border-gray-200 rounded-lg text-gray-400 text-xs font-bold hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-1">
+                             <Plus size={14}/> إضافة برنامج جديد
+                          </button>
+                       </div>
                     </div>
 
-                    <div className="p-6 space-y-6">
-                       {/* Programs List */}
-                       <div>
-                          <div className="flex justify-between items-center mb-3">
-                             <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">البرامج المتاحة في هذه المجموعة</label>
-                             <button onClick={() => addPackageItem(catIdx)} className="text-xs font-bold text-primary hover:bg-primary/5 px-2 py-1 rounded transition-colors">
-                                + إضافة برنامج
-                             </button>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                             {cat.items.map((item, itemIdx) => (
-                                <div key={itemIdx} className="bg-white border border-gray-200 text-secondary px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 shadow-sm">
-                                   {item.name}
-                                   <button onClick={() => removePackageItem(catIdx, itemIdx)} className="text-gray-400 hover:text-red-500 border-r border-gray-100 pr-2 mr-1">
-                                      <X size={12}/>
-                                   </button>
-                                </div>
-                             ))}
-                             {cat.items.length === 0 && <span className="text-xs text-gray-400 italic">لا توجد برامج مضافة</span>}
-                          </div>
-                       </div>
-
-                       {/* Pricing Table */}
-                       <div>
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-3">تسعير المجموعة (عملة ثابتة: ر.س)</label>
-                          <div className="overflow-hidden rounded-xl border border-gray-200">
-                             <table className="w-full text-sm text-right bg-white">
-                                <thead className="bg-gray-50 text-gray-500 font-medium">
-                                   <tr>
-                                      <th className="px-4 py-3">المدة</th>
-                                      <th className="px-4 py-3">سعر السنجل (فرد)</th>
-                                      <th className="px-4 py-3">سعر الدبل (زوجين)</th>
+                    {/* Right: Pricing Table */}
+                    <div>
+                       <label className="text-xs font-bold text-gray-400 block mb-3 uppercase tracking-wider">قائمة الأسعار (ريال سعودي)</label>
+                       <div className="bg-orange-50/50 rounded-xl border border-orange-100 overflow-hidden">
+                          <table className="w-full text-sm text-right">
+                             <thead>
+                                <tr className="bg-orange-100/50 text-orange-900 border-b border-orange-100">
+                                   <th className="py-2 px-3 font-bold text-xs">المدة</th>
+                                   <th className="py-2 px-3 font-bold text-xs">سنجل (1 شخص)</th>
+                                   <th className="py-2 px-3 font-bold text-xs">دبل (2 شخص)</th>
+                                </tr>
+                             </thead>
+                             <tbody className="divide-y divide-orange-100/50">
+                                {cat.priceTiers.map((tier, tierIdx) => (
+                                   <tr key={tierIdx}>
+                                      <td className="py-2 px-3 font-bold text-gray-700">{tier.durationLabel}</td>
+                                      <td className="py-2 px-3">
+                                         <div className="flex items-center bg-white border border-orange-200 rounded-lg px-2 focus-within:border-orange-400 focus-within:ring-2 ring-orange-100">
+                                            <input 
+                                              type="text" value={tier.priceSingle.replace('ر.س', '').trim()} 
+                                              onChange={e => handlePriceChange(catIdx, tierIdx, 'priceSingle', e.target.value)}
+                                              className="w-full py-1.5 outline-none text-left font-mono text-sm bg-transparent"
+                                              placeholder="0"
+                                            />
+                                            <span className="text-xs font-bold text-gray-400 mr-2 select-none">ر.س</span>
+                                         </div>
+                                      </td>
+                                      <td className="py-2 px-3">
+                                         <div className="flex items-center bg-white border border-orange-200 rounded-lg px-2 focus-within:border-orange-400 focus-within:ring-2 ring-orange-100">
+                                            <input 
+                                              type="text" value={tier.priceDouble.replace('ر.س', '').trim()} 
+                                              onChange={e => handlePriceChange(catIdx, tierIdx, 'priceDouble', e.target.value)}
+                                              className="w-full py-1.5 outline-none text-left font-mono text-sm bg-transparent"
+                                              placeholder="0"
+                                            />
+                                            <span className="text-xs font-bold text-gray-400 mr-2 select-none">ر.س</span>
+                                         </div>
+                                      </td>
                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100">
-                                   {cat.priceTiers.map((tier, tierIdx) => (
-                                      <tr key={tierIdx} className="hover:bg-gray-50/50">
-                                         <td className="px-4 py-3 font-bold text-secondary">{tier.durationLabel}</td>
-                                         <td className="px-4 py-3">
-                                            <div className="relative flex items-center">
-                                               <input 
-                                                  type="text" value={tier.priceSingle.replace(' ر.س', '')} 
-                                                  onChange={e => handlePriceChange(catIdx, tierIdx, 'priceSingle', e.target.value + ' ر.س')}
-                                                  className="w-full bg-gray-50 rounded-lg px-3 py-2 pl-10 border border-transparent focus:border-primary outline-none focus:bg-white transition-colors dir-ltr text-left font-mono"
-                                                  placeholder="0"
-                                               />
-                                               <span className="absolute left-3 text-xs font-bold text-gray-400">SAR</span>
-                                            </div>
-                                         </td>
-                                         <td className="px-4 py-3">
-                                            <div className="relative flex items-center">
-                                               <input 
-                                                  type="text" value={tier.priceDouble.replace(' ر.س', '')} 
-                                                  onChange={e => handlePriceChange(catIdx, tierIdx, 'priceDouble', e.target.value + ' ر.س')}
-                                                  className="w-full bg-gray-50 rounded-lg px-3 py-2 pl-10 border border-transparent focus:border-primary outline-none focus:bg-white transition-colors dir-ltr text-left font-mono"
-                                                  placeholder="0"
-                                               />
-                                               <span className="absolute left-3 text-xs font-bold text-gray-400">SAR</span>
-                                            </div>
-                                         </td>
-                                      </tr>
-                                   ))}
-                                </tbody>
-                             </table>
-                          </div>
+                                ))}
+                             </tbody>
+                          </table>
                        </div>
                     </div>
-                  </div>
-                ))}
-             </div>
-           )}
-
+                 </div>
+               </div>
+             ))}
+          </div>
         </div>
       </div>
     </div>
@@ -554,19 +475,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
   const handleAddResort = () => {
     const newResort: Resort = {
       id: Math.random().toString(36).substr(2, 9),
-      isVisible: false, // Default to hidden
       name: 'منتجع جديد',
       location: 'كيرلا',
       description: 'وصف المنتجع...',
       imageUrl: '',
+      isVisible: true,
       features: [],
       packageCategories: [
         {
           title: 'باقات العافية',
           items: [{ name: 'تجديد النشاط', durations: ['7 ليالي', '14 ليلة'] }],
           priceTiers: [
-             { durationLabel: '7 ليالٍ', priceSingle: '', priceDouble: '' },
-             { durationLabel: '14 ليلة', priceSingle: '', priceDouble: '' }
+             { durationLabel: '7 ليالٍ', priceSingle: '0', priceDouble: '0' },
+             { durationLabel: '14 ليلة', priceSingle: '0', priceDouble: '0' }
           ]
         }
       ]
@@ -603,24 +524,20 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 font-sans">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
         <form onSubmit={handleLogin} className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md space-y-4">
-          <div className="text-center mb-6">
-             <div className="w-16 h-16 bg-secondary text-white rounded-2xl flex items-center justify-center mx-auto mb-4"><Lock size={32}/></div>
-             <h2 className="text-2xl font-bold text-secondary">لوحة التحكم</h2>
-             <p className="text-gray-500 text-sm">تسجيل الدخول للمسؤولين</p>
-          </div>
+          <h2 className="text-2xl font-bold text-center text-secondary mb-4">تسجيل الدخول للوحة التحكم</h2>
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className="w-full p-3 border rounded-xl" required />
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className="w-full p-3 border rounded-xl" required />
           <button type="submit" className="w-full bg-secondary text-white py-3 rounded-xl font-bold hover:bg-primary transition-colors">دخول</button>
-          <button type="button" onClick={onBack} className="w-full text-gray-400 text-sm mt-2 hover:text-gray-600">العودة للموقع</button>
+          <button type="button" onClick={onBack} className="w-full text-gray-400 text-sm mt-2">العودة للموقع</button>
         </form>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 font-sans text-right" dir="rtl">
+    <div className="min-h-screen bg-gray-50 pb-24">
       {/* SQL Helper Modal */}
       {showSqlHelp && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -674,11 +591,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
           <div className="space-y-6">
              <div className="flex justify-between items-center">
                <h2 className="text-2xl font-bold text-secondary">صور العرض (Slideshow)</h2>
-               <button onClick={addHeroSlot} className="flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-lg text-sm font-bold shadow-lg shadow-secondary/20 hover:bg-primary transition-colors"><Plus size={16}/> إضافة صورة</button>
+               <button onClick={addHeroSlot} className="flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-lg text-sm font-bold"><Plus size={16}/> إضافة صورة</button>
              </div>
              {heroUrls.map((url, i) => (
                <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 relative shadow-sm">
-                  <div className="absolute top-4 left-4 font-bold text-gray-200 text-4xl select-none">{i+1}</div>
+                  <div className="absolute top-4 left-4 font-bold text-gray-200 text-4xl">{i+1}</div>
                   <ImageInput label={`صورة رقم ${i+1}`} value={url} onChange={u => updateHero(i, u)} onRemove={() => removeHero(i)} showRemove={heroUrls.length > 1} onShowHelp={() => setShowSqlHelp(true)} />
                </div>
              ))}
@@ -709,19 +626,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
 
                  <div className="grid md:grid-cols-2 gap-6">
                     {resorts.map(resort => (
-                       <div key={resort.id} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all group relative">
-                          <div className={`absolute top-4 right-4 z-10 px-3 py-1 rounded-full text-xs font-bold shadow-sm ${resort.isVisible !== false ? 'bg-green-500 text-white' : 'bg-gray-800 text-gray-300'}`}>
-                             {resort.isVisible !== false ? 'منشور' : 'مسودة (مخفي)'}
-                          </div>
+                       <div key={resort.id} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow group relative">
+                          {/* Visibility Badge */}
+                          {resort.isVisible === false && (
+                             <div className="absolute top-4 left-4 z-10 bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                                <EyeOff size={12} /> مخفي
+                             </div>
+                          )}
                           
                           <div className="h-48 bg-gray-100 relative">
                              {resort.imageUrl ? (
-                               <img src={resort.imageUrl} className="w-full h-full object-cover" />
+                               <img src={resort.imageUrl} className={`w-full h-full object-cover transition-all ${resort.isVisible === false ? 'grayscale opacity-70' : ''}`} />
                              ) : (
                                <div className="w-full h-full flex items-center justify-center text-gray-400"><ImageIcon/></div>
                              )}
                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                                <button onClick={() => handleEditResort(resort.id)} className="bg-white text-secondary px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-primary hover:text-white transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300">
+                                <button onClick={() => handleEditResort(resort.id)} className="bg-white text-secondary px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-primary hover:text-white transition-colors">
                                    <Edit size={16}/> تعديل شامل
                                 </button>
                              </div>
@@ -730,8 +650,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
                              <h3 className="font-bold text-lg text-secondary mb-1">{resort.name}</h3>
                              <p className="text-gray-500 text-sm mb-4 truncate">{resort.location}</p>
                              <div className="flex justify-between items-center border-t border-gray-50 pt-4">
-                                <div className="text-xs font-bold text-gray-400 flex items-center gap-1"><Package size={14}/> {resort.packageCategories.length} مجموعات باقات</div>
-                                <button onClick={() => handleDeleteResort(resort.id)} className="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16}/></button>
+                                <div className="text-xs font-bold text-gray-400 flex items-center gap-1"><Package size={14}/> {resort.packageCategories.length} فئات باقات</div>
+                                <button onClick={() => handleDeleteResort(resort.id)} className="text-red-400 hover:text-red-600 p-2"><Trash2 size={16}/></button>
                              </div>
                           </div>
                        </div>
@@ -746,7 +666,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
 
       {/* Sticky Save Bar */}
       {!editingResortId && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-200 flex justify-center z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-200 flex justify-center z-40">
            <button 
              onClick={handleGlobalSave} 
              disabled={saveStatus === 'saving'}
