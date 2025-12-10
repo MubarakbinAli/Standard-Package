@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Phone, Lock } from 'lucide-react';
-import { CONTACT_PHONE_DISPLAY } from '../constants';
+import { CONTACT_PHONE_DISPLAY } from '../lib/constants';
 
 interface FooterProps {
   onAdminClick?: () => void;

@@ -7,16 +7,15 @@ import ResortCard from './components/ResortCard';
 import ResortModal from './components/ResortModal';
 import AdminDashboard from './components/AdminDashboard';
 import Footer from './components/Footer';
-import { RESORTS_DATA } from './constants';
-import { Resort } from './types';
-import { supabase, isSupabaseConfigured } from './supabaseClient';
+import { RESORTS_DATA } from './lib/constants';
+import { Resort } from './lib/types';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
 
 function App() {
   const [selectedResort, setSelectedResort] = useState<Resort | null>(null);
   const [view, setView] = useState<'home' | 'ayurveda' | 'admin'>('home');
   
   // Dynamic Content State
-  // Now manages an array of strings for slideshow
   const [heroImages, setHeroImages] = useState<string[]>([
     "https://cf.bstatic.com/xdata/images/hotel/max1024x768/402854972.jpg?k=f1b953d922904c06282924151212879685a36329067b439c0879e273a7c66914&o=&hp=1"
   ]);
@@ -38,36 +37,42 @@ function App() {
       const { data, error } = await supabase.from('site_content').select('*');
       
       if (data && !error) {
-        // Map content to state
         const contentMap = data.reduce((acc: any, item: any) => {
           acc[item.key] = item.value;
           return acc;
         }, {});
 
-        // Update Hero: Attempt to parse JSON array, fallback to single string
+        // 1. Load Hero Images
         if (contentMap['hero_image']) {
           try {
              const parsed = JSON.parse(contentMap['hero_image']);
-             if (Array.isArray(parsed)) {
-                setHeroImages(parsed);
-             } else {
-                setHeroImages([contentMap['hero_image']]);
-             }
+             setHeroImages(Array.isArray(parsed) ? parsed : [contentMap['hero_image']]);
           } catch (e) {
-             // Not valid JSON, assume it is a single URL string (legacy support)
              setHeroImages([contentMap['hero_image']]);
           }
         }
 
-        // Update Resorts
-        const updatedResorts = RESORTS_DATA.map(resort => {
-          const key = `resort_${resort.id}_image`;
-          if (contentMap[key]) {
-            return { ...resort, imageUrl: contentMap[key] };
+        // 2. Load Full Resorts Data (CMS Mode)
+        if (contentMap['resorts_data']) {
+          try {
+            const parsedResorts = JSON.parse(contentMap['resorts_data']);
+            if (Array.isArray(parsedResorts) && parsedResorts.length > 0) {
+              setDynamicResorts(parsedResorts);
+            }
+          } catch (e) {
+            console.error("Error parsing resorts data", e);
           }
-          return resort;
-        });
-        setDynamicResorts(updatedResorts);
+        } else {
+          // Fallback: Check for legacy image-only updates if full data isn't present
+          const updatedResorts = RESORTS_DATA.map(resort => {
+            const key = `resort_${resort.id}_image`;
+            if (contentMap[key]) {
+              return { ...resort, imageUrl: contentMap[key] };
+            }
+            return resort;
+          });
+          setDynamicResorts(updatedResorts);
+        }
       }
     } catch (err) {
       console.error("Error fetching content:", err);
@@ -83,8 +88,8 @@ function App() {
     return (
       <AdminDashboard 
         onBack={() => setView('home')} 
-        currentHeroImages={heroImages} // Pass array
-        resorts={dynamicResorts}
+        currentHeroImages={heroImages} 
+        currentResorts={dynamicResorts} // Pass full resorts data (hidden and visible)
         onUpdateContent={fetchContent}
       />
     );
@@ -100,23 +105,25 @@ function App() {
     );
   }
 
+  // Filter visible resorts for the public view
+  // Treat undefined isVisible as true for backward compatibility
+  const visibleResorts = dynamicResorts.filter(r => r.isVisible !== false);
+
   // Home View
   return (
     <div className="min-h-screen flex flex-col font-sans">
       <Hero backgroundImages={heroImages} />
       
       <main className="flex-grow">
-        {/* Pass the navigation handler to Intro */}
         <Intro onLearnMore={() => setView('ayurveda')} />
         
-        {/* Resorts Grid */}
         <section className="px-4 py-10 max-w-7xl mx-auto">
            <div className="text-center mb-10">
               <h2 className="text-3xl font-bold text-secondary mb-4">منتجعاتنا المختارة</h2>
               <p className="text-gray-500">اختر وجهتك المثالية للرفاهية</p>
            </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 md:gap-12">
-            {dynamicResorts.map((resort) => (
+            {visibleResorts.map((resort) => (
               <ResortCard 
                 key={resort.id} 
                 resort={resort} 

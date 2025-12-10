@@ -2,7 +2,7 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Resort } from '../types';
+import { Resort } from '../lib/types';
 
 interface ResortCardProps {
   resort: Resort;

@@ -11,9 +11,9 @@ import {
   FileX, ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Resort, BookingFormData } from '../types';
-import { CONTACT_PHONE } from '../constants';
-import { supabase, isSupabaseConfigured } from '../supabaseClient';
+import { Resort, BookingFormData } from '../lib/types';
+import { CONTACT_PHONE } from '../lib/constants';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 // Icon mapping for dynamic rendering
 const ICON_MAP: { [key: string]: React.ElementType } = {
