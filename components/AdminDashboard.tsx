@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../supabaseClient';
-import { Lock, LogOut, Save, Image as ImageIcon, Loader2, AlertCircle, Upload, Link as LinkIcon, X, Copy, Check, Database } from 'lucide-react';
+import { Lock, LogOut, Save, Image as ImageIcon, Loader2, AlertCircle, Upload, Link as LinkIcon, X, Copy, Check, Database, Plus, Trash2 } from 'lucide-react';
 import { Resort } from '../types';
 
 // SQL command string to fix permission errors
@@ -84,9 +84,11 @@ interface ImageInputProps {
   onChange: (url: string) => void;
   previewHeightClass?: string;
   onShowHelp?: () => void;
+  onRemove?: () => void;
+  showRemove?: boolean;
 }
 
-const ImageInput: React.FC<ImageInputProps> = ({ label, value, onChange, previewHeightClass = "h-48", onShowHelp }) => {
+const ImageInput: React.FC<ImageInputProps> = ({ label, value, onChange, previewHeightClass = "h-48", onShowHelp, onRemove, showRemove }) => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -153,6 +155,14 @@ const ImageInput: React.FC<ImageInputProps> = ({ label, value, onChange, preview
     <div className="space-y-4">
       <div className="flex justify-between items-end">
         <label className="text-sm font-bold text-gray-600">{label}</label>
+        {showRemove && onRemove && (
+          <button 
+            onClick={onRemove}
+            className="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1 bg-red-50 px-2 py-1 rounded-lg"
+          >
+            <Trash2 size={12} /> حذف الصورة
+          </button>
+        )}
       </div>
       
       <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -231,12 +241,12 @@ const ImageInput: React.FC<ImageInputProps> = ({ label, value, onChange, preview
 // --- Main Component ---
 interface AdminDashboardProps {
   onBack: () => void;
-  currentHeroImage: string;
+  currentHeroImages: string[]; // Accept Array now
   resorts: Resort[];
   onUpdateContent: () => void;
 }
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImage, resorts, onUpdateContent }) => {
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImages, resorts, onUpdateContent }) => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -245,7 +255,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
   const [showSqlHelp, setShowSqlHelp] = useState(false);
   
   // Edit States
-  const [heroUrl, setHeroUrl] = useState(currentHeroImage);
+  const [heroUrls, setHeroUrls] = useState<string[]>([]);
   const [resortImages, setResortImages] = useState<{ [key: string]: string }>({});
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveErrorDetails, setSaveErrorDetails] = useState<string>('');
@@ -264,15 +274,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
     return () => subscription.unsubscribe();
   }, []);
 
-  // Initialize resort images state
+  // Initialize data
   useEffect(() => {
     const initialImages: { [key: string]: string } = {};
     resorts.forEach(r => {
       initialImages[r.id] = r.imageUrl;
     });
     setResortImages(initialImages);
-    setHeroUrl(currentHeroImage);
-  }, [resorts, currentHeroImage]);
+    
+    // Ensure heroUrls is always an array
+    if (Array.isArray(currentHeroImages) && currentHeroImages.length > 0) {
+      setHeroUrls(currentHeroImages);
+    } else {
+      setHeroUrls(['']); // Default empty slot
+    }
+  }, [resorts, currentHeroImages]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -293,14 +309,35 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
     onBack();
   };
 
+  // Hero Array Handlers
+  const addHeroImageSlot = () => {
+    setHeroUrls([...heroUrls, '']);
+  };
+
+  const removeHeroImageSlot = (index: number) => {
+    const newUrls = [...heroUrls];
+    newUrls.splice(index, 1);
+    setHeroUrls(newUrls);
+  };
+
+  const updateHeroUrl = (index: number, val: string) => {
+    const newUrls = [...heroUrls];
+    newUrls[index] = val;
+    setHeroUrls(newUrls);
+  };
+
   const handleSave = async () => {
     setSaveStatus('saving');
     setSaveErrorDetails('');
     
     try {
+      // Filter out empty URLs and serialize array to JSON string
+      const validHeroUrls = heroUrls.filter(u => u.trim() !== '');
+      const heroValue = JSON.stringify(validHeroUrls.length > 0 ? validHeroUrls : heroUrls);
+
       const updates = [
-        // Update Hero
-        supabase.from('site_content').upsert({ key: 'hero_image', value: heroUrl }),
+        // Update Hero (Save as JSON string)
+        supabase.from('site_content').upsert({ key: 'hero_image', value: heroValue }),
         
         // Update Resorts
         ...Object.entries(resortImages).map(([id, url]) => 
@@ -310,14 +347,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
 
       const results = await Promise.all(updates);
       
-      // Check for errors in results
       const firstError = results.find(r => r.error);
-      
       if (firstError) {
-        // Extract meaningful error message
         const errorMsg = firstError.error?.message || JSON.stringify(firstError.error);
-        console.error("Error saving content:", errorMsg);
-        
         setSaveErrorDetails(errorMsg);
         setShowSqlHelp(true);
         setSaveStatus('error');
@@ -325,7 +357,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
       }
 
       setSaveStatus('saved');
-      onUpdateContent(); // Refresh app data
+      onUpdateContent(); 
       setTimeout(() => setSaveStatus('idle'), 2000);
     } catch (err: any) {
       console.error(err);
@@ -486,20 +518,45 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentHeroImag
            إصلاح إعدادات قاعدة البيانات
         </button>
 
-        {/* Hero Section Edit */}
+        {/* Hero Section Edit - Multiple Images */}
         <section className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-secondary mb-6 flex items-center gap-2">
-            <ImageIcon className="text-primary" />
-            صورة الهيرو (الرئيسية)
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+             <h2 className="text-xl font-bold text-secondary flex items-center gap-2">
+               <ImageIcon className="text-primary" />
+               صور الهيرو (السلايد شو)
+             </h2>
+             <button 
+               onClick={addHeroImageSlot}
+               className="flex items-center gap-2 px-4 py-2 bg-[#FAFAF5] text-secondary rounded-lg text-sm font-bold hover:bg-primary/10 transition-colors"
+             >
+               <Plus size={16} /> إضافة صورة
+             </button>
+          </div>
           
-          <ImageInput 
-            label="الصورة الحالية"
-            value={heroUrl}
-            onChange={setHeroUrl}
-            previewHeightClass="h-64"
-            onShowHelp={() => setShowSqlHelp(true)}
-          />
+          <div className="space-y-8">
+            {heroUrls.map((url, index) => (
+              <div key={index} className="relative p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="absolute -top-3 -right-3 bg-secondary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm z-10">
+                   {index + 1}
+                </div>
+                <ImageInput 
+                  label={`الصورة رقم ${index + 1}`}
+                  value={url}
+                  onChange={(newUrl) => updateHeroUrl(index, newUrl)}
+                  previewHeightClass="h-48"
+                  onShowHelp={() => setShowSqlHelp(true)}
+                  showRemove={heroUrls.length > 1}
+                  onRemove={() => removeHeroImageSlot(index)}
+                />
+              </div>
+            ))}
+            
+            {heroUrls.length === 0 && (
+               <div className="text-center py-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
+                  لا توجد صور حالياً. اضغط "إضافة صورة" للبدء.
+               </div>
+            )}
+          </div>
         </section>
 
         {/* Resorts Edit */}

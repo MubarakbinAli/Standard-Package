@@ -16,7 +16,10 @@ function App() {
   const [view, setView] = useState<'home' | 'ayurveda' | 'admin'>('home');
   
   // Dynamic Content State
-  const [heroImage, setHeroImage] = useState("https://cf.bstatic.com/xdata/images/hotel/max1024x768/402854972.jpg?k=f1b953d922904c06282924151212879685a36329067b439c0879e273a7c66914&o=&hp=1");
+  // Now manages an array of strings for slideshow
+  const [heroImages, setHeroImages] = useState<string[]>([
+    "https://cf.bstatic.com/xdata/images/hotel/max1024x768/402854972.jpg?k=f1b953d922904c06282924151212879685a36329067b439c0879e273a7c66914&o=&hp=1"
+  ]);
   const [dynamicResorts, setDynamicResorts] = useState<Resort[]>(RESORTS_DATA);
 
   // Check URL for admin mode
@@ -41,9 +44,19 @@ function App() {
           return acc;
         }, {});
 
-        // Update Hero
+        // Update Hero: Attempt to parse JSON array, fallback to single string
         if (contentMap['hero_image']) {
-          setHeroImage(contentMap['hero_image']);
+          try {
+             const parsed = JSON.parse(contentMap['hero_image']);
+             if (Array.isArray(parsed)) {
+                setHeroImages(parsed);
+             } else {
+                setHeroImages([contentMap['hero_image']]);
+             }
+          } catch (e) {
+             // Not valid JSON, assume it is a single URL string (legacy support)
+             setHeroImages([contentMap['hero_image']]);
+          }
         }
 
         // Update Resorts
@@ -70,7 +83,7 @@ function App() {
     return (
       <AdminDashboard 
         onBack={() => setView('home')} 
-        currentHeroImage={heroImage}
+        currentHeroImages={heroImages} // Pass array
         resorts={dynamicResorts}
         onUpdateContent={fetchContent}
       />
@@ -90,7 +103,7 @@ function App() {
   // Home View
   return (
     <div className="min-h-screen flex flex-col font-sans">
-      <Hero backgroundImage={heroImage} />
+      <Hero backgroundImages={heroImages} />
       
       <main className="flex-grow">
         {/* Pass the navigation handler to Intro */}
